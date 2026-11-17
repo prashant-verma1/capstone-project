@@ -1,6 +1,7 @@
 import { passwordMinimumLength } from "../constants/password.constant";
 import { AppError } from "../errors/AppError";
-import { createUser, findUesrByEmail } from "../repositories/user.repository";
+import { signAccessToken } from "../lib/jwt";
+import { createUser, findUesrByEmail, findUesrByEmailWithPassword } from "../repositories/user.repository";
 import argon2 from 'argon2';
 
 export async function registerUser(
@@ -32,4 +33,32 @@ export async function registerUser(
     parallelism: 4,
   });
   await createUser(normalizeEmail,passwordHash)
+}
+
+export async function loginUser (
+  email: string,
+password: string
+) : Promise<{accessToken : string}>{
+  if (!email || !password) {
+    throw new AppError(400, "Email and Password are required");
+  }
+
+  const normalizeEmail = email.toLowerCase().trim()
+  const user = await findUesrByEmailWithPassword(normalizeEmail) 
+
+  if(!user?.password_hash){
+    throw new AppError(401, "Invalid email or password");
+  }
+  const isPasswordValid = await argon2.verify(user.password_hash, password);
+
+  if(!isPasswordValid){
+    throw new AppError(401, "Invalid email or password");
+  }
+
+  const accessToken = signAccessToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role
+  })
+  return { accessToken }
 }
