@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.middleware"
-import { createUserTask, getUserTaskById, getUserTasks } from "../services/user.task.service"
+import { createUserTask, getUserTaskById, getUserTasks, updateUserTaskById } from "../services/user.task.service"
 
 
 
@@ -42,6 +42,22 @@ userTaskRouter.get("/:taskId", async(req, res, next)=>{
         const task = await getUserTaskById(req.user!.userId,req.params.taskId)
         
         res.status(200).json({
+            success: true,
+            data: {
+                task
+            }
+        })
+
+    } catch (error) {
+        next(error)
+    }
+    
+})
+userTaskRouter.patch("/:taskId", async(req, res, next)=>{
+    try {
+        const task = await updateUserTaskById(req.user!.userId,req.params.taskId, req.body.title)
+        
+        res.status(202).json({
             success: true,
             data: {
                 task
