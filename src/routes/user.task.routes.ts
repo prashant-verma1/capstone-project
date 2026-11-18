@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.middleware"
-import { createUserTask } from "../services/user.task.service"
+import { createUserTask, getUserTasks } from "../services/user.task.service"
 
 
 
@@ -19,4 +19,21 @@ userTaskRouter.post("/", async (req,res, next)=>{
     } catch (error) {
         next(error)
     }
+})
+
+userTaskRouter.get("/", async(req, res, next)=>{
+    try {
+        const tasks = await getUserTasks(req.user!.userId)
+        
+        res.status(200).json({
+            success: true,
+            data: {
+                tasks
+            }
+        })
+
+    } catch (error) {
+        next(error)
+    }
+    
 })
