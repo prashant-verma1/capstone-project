@@ -1,6 +1,7 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { TokenPayload } from "../types/user";
 import { env } from "../config/env";
+import { AppError } from "../errors/AppError";
 
 
 export function signAccessToken( payload: TokenPayload): string{
@@ -9,4 +10,12 @@ export function signAccessToken( payload: TokenPayload): string{
     }
 
     return jwt.sign(payload, env.jwtAccessSecret, options)
+}
+
+export function verifyAccessTOken(token: string) : TokenPayload{
+    try{
+    return jwt.verify(token, env.jwtAccessSecret) as TokenPayload;     
+    } catch{
+        throw new AppError(401,"Invalid or expired access token")
+    }
 }
