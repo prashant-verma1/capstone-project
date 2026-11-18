@@ -1,5 +1,5 @@
 import { AppError } from "../errors/AppError";
-import { createTask } from "../repositories/user.task.repository";
+import { createTask, fetchTaskByUserId } from "../repositories/user.task.repository";
 import { Task } from "../types/task";
 
 
@@ -19,3 +19,9 @@ export async function createUserTask(userid: string, title: unknown):Promise<Tas
     const validTitle = validateTitle(title);
     return await createTask(userid, validTitle);
 }
+
+export async function getUserTasks(userid: string):Promise<Task[]>{
+    return await fetchTaskByUserId(userid)
+}
+
+   
